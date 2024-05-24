@@ -1,0 +1,167 @@
+﻿/*@!Encoding:65001*/
+includes
+{
+  
+}
+
+variables
+{
+  
+}
+
+//////////////////// P-CAN -> B-CAN ////////////////////
+on message P_CAN::m_BatteryInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+on message P_CAN::VCU::m_VCU_Display
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+on message can1.P_CAN::BMS::m_BMS_Display
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+on message P_CAN::VCU::m_VCU_DiagRes
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+on message P_CAN::BMS::m_BMS_DiagRes
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+
+//////////////////// B-CAN -> P-CAN  ////////////////////
+on message B_CAN::m_KeyMode
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  output(gwmsg);  
+}
+
+on message B_CAN::m_Vehicle_DoneConnect
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  output(gwmsg);
+}
+
+on message B_CAN::m_VCU_DiagReq
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  output(gwmsg);
+}
+
+on message B_CAN::m_BMS_DiagReq
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  output(gwmsg);
+}
+
+//////////////////// B-CAN -> C-CAN  ////////////////////
+on message B_CAN::m_IEB_DiagReq
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 3;
+  output(gwmsg);
+}
+
+on message B_CAN::m_UserRegenStep
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 3;
+  output(gwmsg);
+}
+
+
+//////////////////// C-CAN -> P-CAN, B-CAN  ////////////////////
+on message C_CAN::m_BrakeInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+//////////////////// C-CAN -> B-CAN  ////////////////////
+on message C_CAN::m_IEB_DiagRes
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+
+////////////////////// vehicle -> Charger  ////////////////////
+on message B_CAN::m_Vehicle_UserInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 4;
+  output(gwmsg);
+}
+
+on message P_CAN::BMS::m_Vehicle_BatteryInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 4;
+  output(gwmsg);
+}
+
+////////////////////// Charger -> B-CAN  ////////////////////
+on message EPIT::m_EPIT_WaitConnect
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
+
+////////////////////// Charger -> P-CAN  ////////////////////
+on message EPIT::m_EPIT_BatteryInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  output(gwmsg);
+}
+
+////////////////////// Charger -> B-CAN  ////////////////////
+on message EPIT::m_EPIT_FinishCharge
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 2;
+  output(gwmsg);
+}
