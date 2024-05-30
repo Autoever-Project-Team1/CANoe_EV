@@ -1,0 +1,510 @@
+﻿/*@!Encoding:65001*/
+includes
+{
+  
+}
+
+variables
+{
+  byte gear;
+  byte keyVal; 
+  byte chargingWar; 
+  byte chargingMode; 
+  
+  byte windPushFlag_L; 
+  byte windPushFlag_R; 
+  
+  byte buf; 
+  
+  byte startScanPushFlag; 
+  byte scanInfoPushFlag; 
+  
+  msTimer Tim100ms; 
+  
+  byte loadingDispFlag; 
+  
+  //OBD
+  int BMS_res_SoC;
+  int BMS_res_SoT;
+  int HVAC_res_Temp;
+  int HVAC_res_Wind;
+  int ICC_res_Key;
+  int ICC_res_RegBrake;
+  int IEB_res_Brake;
+  int VCU_res_Accel;
+  int VCU_res_Trans;
+  
+  	
+  char buf_BMS[100]; 
+  char buf_HVAC[100]; 
+  char buf_ICC[100]; 
+  char buf_IEB[100]; 
+  char buf_VCU[100]; 
+  
+  //OBD Error insert
+  byte errorPushFlag1 = 0; 
+  byte errorPushFlag2 = 0; 
+  byte errorPushFlag3 = 0; 
+  byte errorPushFlag4 = 0; 
+  byte errorPushFlag5 = 0; 
+  byte errorPushFlag6 = 0; 
+  byte errorPushFlag7 = 0; 
+  byte errorPushFlag8 = 0; 
+  byte errorPushFlag9 = 0; 
+  
+  int OldData_errorPush1; 
+  int OldData_errorPush2; 
+  int OldData_errorPush3; 
+  int OldData_errorPush4; 
+  int OldData_errorPush5; 
+  int64 OldData_errorPush6; 
+  int OldData_errorPush7; 
+  int OldData_errorPush8; 
+  int OldData_errorPush9; 
+
+}
+
+//this is display.. about P R N D On cluster 
+//this is usercontrol display : Gear
+on sysvar sysvar::Cluster::sv_Cluster_GearMode
+{
+  gear = @sysvar::Cluster::sv_Cluster_GearMode; //3-P, 2-R, 1-N, 0-D
+  
+  SetControlVisibility("UserControl", "P_pic", 0);
+  SetControlVisibility("UserControl", "R_pic", 0);
+  SetControlVisibility("UserControl", "N_pic", 0);
+  SetControlVisibility("UserControl", "D_pic", 0);
+  
+  if(gear == 3){
+    setControlProperty("Cluster", "gearMode_Text", "Text", "P");
+    SetControlVisibility("UserControl", "P_pic", 1);
+  }
+  else if(gear == 2){
+    setControlProperty("Cluster", "gearMode_Text", "Text", "R");
+    SetControlVisibility("UserControl", "R_pic", 1);
+  }
+  else if(gear == 1){
+    setControlProperty("Cluster", "gearMode_Text", "Text", "N");
+    SetControlVisibility("UserControl", "N_pic", 1);
+  }
+  else if(gear == 0){
+    setControlProperty("Cluster", "gearMode_Text", "Text", "D");
+    SetControlVisibility("UserControl", "D_pic", 1);
+  }
+  else{
+    SetControlVisibility("UserControl", "P_pic", 1);
+  }
+}
+
+//this is display.. about off,acc,ready text.. 
+on sysvar sysvar::Cluster::sv_Cluster_KeyValue
+{
+  keyVal = @sysvar::Cluster::sv_Cluster_KeyValue; //0-off, 1-acc, 2-on
+  
+  
+  if(keyVal == 0){
+    setControlProperty("Cluster", "keyMode_Text", "Text", "OFF");
+    SetControlColors("Cluster", "keyMode_Text", MakeRGB(0,0,0), MakeRGB(255,0,0));
+    
+    SetControlVisibility("UserControl", "keyEVon_pic", 0);
+  }
+  else if(keyVal == 1){
+    setControlProperty("Cluster", "keyMode_Text", "Text", "ACC");
+    SetControlColors("Cluster", "keyMode_Text", MakeRGB(0,0,0), MakeRGB(255,192,255));
+    
+    SetControlVisibility("UserControl", "keyEVon_pic", 1);
+  }
+  else if(keyVal == 2){
+    setControlProperty("Cluster", "keyMode_Text", "Text", "READY");
+    SetControlColors("Cluster", "keyMode_Text", MakeRGB(0,0,0), MakeRGB(0,255,0));
+    
+    SetControlVisibility("UserControl", "keyEVon_pic", 1);
+  }
+}
+
+//this is display.. about charging warring.. 
+on sysvar sysvar::Cluster::sv_Cluster_ChargingWarning
+{
+  chargingWar = @sysvar::Cluster::sv_Cluster_ChargingWarning; 
+  
+  if(chargingWar == 0){
+    SetControlVisibility("Cluster", "chargingWar_pic", 0);
+    SetControlVisibility("Cluster", "chargingWar_1_Text", 0);
+    SetControlVisibility("Cluster", "chargingWar_2_Text", 0);
+  }
+  else if(chargingWar == 1){
+    SetControlVisibility("Cluster", "chargingWar_pic", 1);
+    SetControlVisibility("Cluster", "chargingWar_1_Text", 1);
+    SetControlVisibility("Cluster", "chargingWar_2_Text", 0);
+  }
+  else if(chargingWar == 2){
+    SetControlVisibility("Cluster", "chargingWar_pic", 1);
+    SetControlVisibility("Cluster", "chargingWar_1_Text", 0);
+    SetControlVisibility("Cluster", "chargingWar_2_Text", 1);
+  }
+}
+
+//this is display.. about charging Mode.. 
+on sysvar sysvar::Cluster::sv_Cluster_ChargingMode
+{
+  chargingMode = @sysvar::Cluster::sv_Cluster_ChargingMode; //0-norm, 1-charge
+  
+  if(chargingMode == 0){
+    SetControlVisibility("Cluster", "km", 1);
+    SetControlVisibility("Cluster", "ClusterDrivingDistance", 1);
+    
+    SetControlVisibility("Cluster", "Text_EstimatedChargingTime", 0);
+    SetControlVisibility("Cluster", "EstimatedChargingTime", 0);
+    SetControlVisibility("Cluster", "chargeText", 0);
+  }
+  else if(chargingMode == 1){
+    SetControlVisibility("Cluster", "km", 0);
+    SetControlVisibility("Cluster", "ClusterDrivingDistance", 0);
+    
+    SetControlVisibility("Cluster", "Text_EstimatedChargingTime", 1);
+    SetControlVisibility("Cluster", "EstimatedChargingTime", 1);
+    SetControlVisibility("Cluster", "chargeText", 1);
+  }
+}
+
+on sysvar sysvar::DashBoard::sv_AC_WindVolume
+{
+  SetControlVisibility("DashBoard", "wind_pic_1", 1);
+  SetControlVisibility("DashBoard", "wind_pic_2", 1);
+  SetControlVisibility("DashBoard", "wind_pic_3", 1);
+  SetControlVisibility("DashBoard", "wind_pic_4", 1);
+  
+  if(@sysvar::DashBoard::sv_AC_WindVolume == 1){
+    SetControlVisibility("DashBoard", "wind_pic_1", 0);
+  }
+  else if(@sysvar::DashBoard::sv_AC_WindVolume == 2){
+    SetControlVisibility("DashBoard", "wind_pic_1", 0);
+    SetControlVisibility("DashBoard", "wind_pic_2", 0);
+  }
+  else if(@sysvar::DashBoard::sv_AC_WindVolume == 3){
+    SetControlVisibility("DashBoard", "wind_pic_1", 0);
+    SetControlVisibility("DashBoard", "wind_pic_2", 0);
+    SetControlVisibility("DashBoard", "wind_pic_3", 0);
+  }
+  else if(@sysvar::DashBoard::sv_AC_WindVolume == 4){
+    SetControlVisibility("DashBoard", "wind_pic_1", 0);
+    SetControlVisibility("DashBoard", "wind_pic_2", 0);
+    SetControlVisibility("DashBoard", "wind_pic_3", 0);
+    SetControlVisibility("DashBoard", "wind_pic_4", 0);
+  }
+}
+
+on sysvar sysvar::DashBoard::sv_DashBoard_Wind_LeftBtn
+{
+  if(@sysvar::DashBoard::sv_DashBoard_Wind_LeftBtn == 1){
+    windPushFlag_L = 1; 
+  }
+  else if(@sysvar::DashBoard::sv_DashBoard_Wind_LeftBtn == 0){
+    if(windPushFlag_L == 1){
+      if(@sysvar::DashBoard::sv_AC_WindVolume != 0){
+        @sysvar::DashBoard::sv_AC_WindVolume--;
+      }
+    }
+    windPushFlag_L = 0;
+  }
+}
+
+on sysvar sysvar::DashBoard::sv_DashBoard_Wind_RightBtn
+{
+  if(@sysvar::DashBoard::sv_DashBoard_Wind_RightBtn == 1){
+    windPushFlag_R = 1; 
+  }
+  else if(@sysvar::DashBoard::sv_DashBoard_Wind_RightBtn == 0){
+    if(windPushFlag_R == 1){
+      if(@sysvar::DashBoard::sv_AC_WindVolume != 4){
+        @sysvar::DashBoard::sv_AC_WindVolume++;
+      } 
+    }
+    windPushFlag_R = 0;
+  }
+}
+
+//this is about OBD display
+on sysvar sysvar::OBD_PanelControl::sv_Error_BMS
+{
+  buf = @sysvar::OBD_PanelControl::sv_Error_BMS; 
+  SetControlVisibility("DashBoard", "war_BMS_pic", buf);
+}
+on sysvar sysvar::OBD_PanelControl::sv_Error_HVAC
+{
+  buf = @sysvar::OBD_PanelControl::sv_Error_HVAC; 
+  SetControlVisibility("DashBoard", "war_HVAC_pic", buf);
+}
+on sysvar sysvar::OBD_PanelControl::sv_Error_ICC
+{
+  buf = @sysvar::OBD_PanelControl::sv_Error_ICC; 
+  SetControlVisibility("DashBoard", "war_ICC_pic", buf);
+}
+on sysvar sysvar::OBD_PanelControl::sv_Error_IEB
+{
+  buf = @sysvar::OBD_PanelControl::sv_Error_IEB; 
+  SetControlVisibility("DashBoard", "war_IEB_pic", buf);
+}
+on sysvar sysvar::OBD_PanelControl::sv_Error_VCU
+{
+  buf = @sysvar::OBD_PanelControl::sv_Error_VCU; 
+  SetControlVisibility("DashBoard", "war_VCU_pic", buf);
+}
+
+
+
+//this... send OBD..Frame
+on sysvar sysvar::OBD_PanelControl::sv_Btn_startScan
+{
+  message BCAN::OBD::m_BMS_DiagReq    send_BMS_Req; 
+  message BCAN::OBD::m_HVAC_DiagReq   send_HVAC_Req;
+  message BCAN::OBD::m_ICC_DiagReq    send_ICC_Req;
+  message BCAN::OBD::m_IEB_DiagReq    send_IEB_Req;
+  message BCAN::OBD::m_VCU_DiagReq    send_VCU_Req;
+  
+  if(@sysvar::OBD_PanelControl::sv_Btn_startScan == 1){
+    startScanPushFlag = 1; 
+  }
+  else if(@sysvar::OBD_PanelControl::sv_Btn_startScan == 0){
+    if(startScanPushFlag == 1){
+      BMS_res_SoC = 0;
+      BMS_res_SoT = 0;
+      HVAC_res_Temp = 0;
+      HVAC_res_Wind = 0;
+      ICC_res_Key = 0;
+      ICC_res_RegBrake = 0;
+      IEB_res_Brake = 0;
+      VCU_res_Accel = 0;
+      VCU_res_Trans = 0;
+      
+      send_BMS_Req.s_BMS_DiagReq.phys = 1;
+      send_HVAC_Req.s_HVAC_DiagReq.phys = 1;
+      send_ICC_Req.s_ICC_DiagReq.phys = 1;
+      send_IEB_Req.s_IEB_DiagReq.phys = 1;
+      send_VCU_Req.s_VCU_DiagReq.phys = 1;
+      output(send_BMS_Req);
+      output(send_HVAC_Req);
+      output(send_ICC_Req);
+      output(send_IEB_Req);
+      output(send_VCU_Req);
+      
+      loadingDispFlag = 1; 
+      SetControlVisibility("DashBoard", "startscan_pic", 0);
+      SetControlVisibility("DashBoard", "startScanBtn", 0);
+      SetControlVisibility("DashBoard", "ScanLoding", 1);
+      SetControlVisibility("DashBoard", "ScanLoding_bar", 1);
+    }
+    startScanPushFlag = 0;
+  }
+}
+
+on timer Tim100ms
+{
+  if(loadingDispFlag == 1){
+    @sysvar::OBD_PanelControl::sv_Loading += 5; 
+  }  
+
+  if(@sysvar::OBD_PanelControl::sv_Loading == 100){
+    @sysvar::OBD_PanelControl::sv_Loading = 0;
+    loadingDispFlag = 0; 
+    SetControlVisibility("DashBoard", "scanInfoBtn", 1);
+    SetControlVisibility("DashBoard", "scaninfo", 1);
+    SetControlVisibility("DashBoard", "ScanLoding", 0);
+    SetControlVisibility("DashBoard", "ScanLoding_bar", 0);
+  
+    //this is..OBD Res..
+    snprintf(buf_VCU,elcount(buf_VCU),"엑셀 %d회, 변속기 %d회", VCU_res_Accel, VCU_res_Trans);
+    setControlProperty("DashBoard", "VCU_war_text", "Text", buf_VCU);
+    
+    snprintf(buf_BMS,elcount(buf_BMS),"배터리 용량 %d회, 배터리 온도 %d회", BMS_res_SoC, BMS_res_SoT);
+    setControlProperty("DashBoard", "BMS_war_text", "Text", buf_BMS);
+    
+    snprintf(buf_ICC,elcount(buf_ICC),"시동버튼 %d회, 회생제동 %d회", ICC_res_Key, ICC_res_RegBrake);
+    setControlProperty("DashBoard", "ICC_war_text", "Text", buf_ICC);
+
+    snprintf(buf_HVAC,elcount(buf_HVAC),"온도조절 %d회, 풍량조절 %d회", HVAC_res_Temp, HVAC_res_Wind);
+    setControlProperty("DashBoard", "HVAC_war_text", "Text", buf_HVAC);
+    
+    snprintf(buf_IEB,elcount(buf_IEB),"브레이크 %d회", IEB_res_Brake);
+    setControlProperty("DashBoard", "IEB_war_text", "Text", buf_IEB);    
+   
+    SetControlVisibility("DashBoard", "war_res_text", 1);
+    SetControlVisibility("DashBoard", "VCU_war_text", 1);
+    SetControlVisibility("DashBoard", "BMS_war_text", 1);
+    SetControlVisibility("DashBoard", "ICC_war_text", 1);
+    SetControlVisibility("DashBoard", "HVAC_war_text", 1);
+    SetControlVisibility("DashBoard", "IEB_war_text", 1);
+    
+  }
+  
+}
+on start{
+  setTimerCyclic(Tim100ms, 100); 
+}
+
+
+on sysvar sysvar::OBD_PanelControl::sv_Btn_scanInfo
+{
+  if(@sysvar::OBD_PanelControl::sv_Btn_scanInfo == 1){
+    scanInfoPushFlag = 1; 
+  }
+  else if(@sysvar::OBD_PanelControl::sv_Btn_scanInfo == 0){
+    if(scanInfoPushFlag == 1){
+      SetControlVisibility("DashBoard", "scanInfoBtn", 0);
+      SetControlVisibility("DashBoard", "scaninfo", 0);
+      SetControlVisibility("DashBoard", "war_res_text", 0);
+      SetControlVisibility("DashBoard", "VCU_war_text", 0);
+      SetControlVisibility("DashBoard", "BMS_war_text", 0);
+      SetControlVisibility("DashBoard", "ICC_war_text", 0);
+      SetControlVisibility("DashBoard", "HVAC_war_text", 0);
+      SetControlVisibility("DashBoard", "IEB_war_text", 0);
+      
+      SetControlVisibility("DashBoard", "startscan_pic", 1);
+      SetControlVisibility("DashBoard", "startScanBtn", 1);
+
+    }
+    scanInfoPushFlag = 0;
+  }
+}
+
+
+
+//OBD Receive...
+on message BCAN::Gateway::m_BMS_DiagRes
+{
+  BMS_res_SoC = this.s_BMS_SoC_DiagRes.phys;
+  BMS_res_SoT = this.s_BMS_SoT_DiagRes.phys;
+}
+on message BCAN::Gateway::m_IEB_DiagRes
+{
+  IEB_res_Brake = this.s_IEB_Brake_DiagRes.phys;
+}
+on message BCAN::Gateway::m_VCU_DiagRes
+{
+  VCU_res_Accel = this.s_VCU_Accel_DiagRes.phys;
+  VCU_res_Trans = this.s_VCU_Transmission_DiagRes.phys; 
+}
+on message BCAN::HVAC::m_HVAC_DiagRes
+{
+  HVAC_res_Temp = this.s_HVAC_Temperature_DiagRes.phys;
+  HVAC_res_Wind = this.s_HVAC_WindVolume_DiagRes.phys; 
+}
+on message BCAN::ICC::m_ICC_DiagRes
+{
+  ICC_res_Key = this.s_Key_DiagRes.phys;
+  ICC_res_RegBrake = this.s_RegBrake_DiagRes.phys; 
+}
+
+
+//this... OBD error input...
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Accel
+{
+  if(errorPushFlag1 == 1){
+    @sysvar::UserControl::sv_AccelValue = OldData_errorPush1;
+    errorPushFlag1 = 0;
+  }
+  else{
+    OldData_errorPush1 = @sysvar::UserControl::sv_AccelValue; 
+    @sysvar::UserControl::sv_AccelValue = 300 + random(10000);
+    errorPushFlag1 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_break
+{
+  if(errorPushFlag2 == 1){
+    @sysvar::UserControl::sv_BrakeValue = OldData_errorPush2;
+    errorPushFlag2 = 0;
+  }
+  else{
+    OldData_errorPush2 = @sysvar::UserControl::sv_BrakeValue; 
+    @sysvar::UserControl::sv_BrakeValue = 300 + random(10000);
+    errorPushFlag2 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Gear
+{
+  if(errorPushFlag3 == 1){
+    @sysvar::UserControl::sv_GearMode = OldData_errorPush3;
+    errorPushFlag3 = 0;
+  }
+  else{
+    OldData_errorPush3 = @sysvar::UserControl::sv_GearMode; 
+    @sysvar::UserControl::sv_GearMode = 5 + random(10000);
+    errorPushFlag3 = 1;
+  }
+}
+//
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Key
+{
+
+  if(errorPushFlag4 == 1){
+    @sysvar::UserControl::sv_KeyValue = OldData_errorPush4;
+    errorPushFlag4 = 0;
+  }
+  else{
+    OldData_errorPush4 = @sysvar::UserControl::sv_KeyValue; 
+    @sysvar::UserControl::sv_KeyValue = 5 + random(10000);
+    errorPushFlag4 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Reg
+{
+  if(errorPushFlag5 == 1){
+    @sysvar::DashBoard::sv_UserRegenStep = OldData_errorPush5;
+    errorPushFlag5 = 0;
+  }
+  else{
+    OldData_errorPush5 = @sysvar::DashBoard::sv_UserRegenStep; 
+    @sysvar::DashBoard::sv_UserRegenStep = 5 + random(10000);
+    errorPushFlag5 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_SoC
+{
+  if(errorPushFlag6 == 1){
+    @sysvar::Battery::sv_Battery_SoC = OldData_errorPush6;
+    errorPushFlag6 = 0;
+  }
+  else{
+    OldData_errorPush6 = @sysvar::Battery::sv_Battery_SoC; 
+    @sysvar::Battery::sv_Battery_SoC = 84000 + random(10000);
+    errorPushFlag6 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_SoT
+{
+  if(errorPushFlag7 == 1){
+    @sysvar::Battery::sv_Battery_Temperature = OldData_errorPush7;
+    errorPushFlag7 = 0;
+  }
+  else{
+    OldData_errorPush7 = @sysvar::Battery::sv_Battery_Temperature; 
+    @sysvar::Battery::sv_Battery_Temperature = 50 + random(500);
+    errorPushFlag7 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Temp
+{
+  if(errorPushFlag8 == 1){
+    @sysvar::DashBoard::sv_AC_Temperature = OldData_errorPush8;
+    errorPushFlag8 = 0;
+  }
+  else{
+    OldData_errorPush8 = @sysvar::DashBoard::sv_AC_Temperature; 
+    @sysvar::DashBoard::sv_AC_Temperature = 35 + random(500);
+    errorPushFlag8 = 1;
+  }
+}
+on sysvar sysvar::OBD_PanelControl::sv_Btn_Wind
+{
+  if(errorPushFlag9 == 1){
+    @sysvar::DashBoard::sv_AC_WindVolume = OldData_errorPush9;
+    errorPushFlag9 = 0;
+  }
+  else{
+    OldData_errorPush9 = @sysvar::DashBoard::sv_AC_WindVolume; 
+    @sysvar::DashBoard::sv_AC_WindVolume = 5 + random(10000);
+    errorPushFlag9 = 1;
+  }
+}
+
