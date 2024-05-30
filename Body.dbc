@@ -1,0 +1,211 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: OBD HVAC ICC Gateway
+
+
+BO_ 261 m_BatteryInfo: 2 Gateway
+ SG_ s_SoT : 8|8@1- (1,0) [-128|127] "C"  HVAC
+ SG_ s_SoC : 0|7@1+ (1,0) [0|100] "%"  HVAC
+
+BO_ 771 m_HVAC_Display: 2 HVAC
+ SG_ s_AC_Temperature : 2|4@1+ (1,0) [0|255] "C"  ICC
+ SG_ s_AC_WindVolume : 0|2@1+ (1,0) [0|3] ""  ICC
+
+BO_ 1284 m_IEB_DiagRes: 1 Gateway
+ SG_ s_IEB_Brake_DiagRes : 0|8@1+ (1,0) [0|255] "counter"  OBD
+
+BO_ 1282 m_VCU_DiagRes: 2 Gateway
+ SG_ s_VCU_Transmission_DiagRes : 8|8@1+ (1,0) [0|255] "counter"  OBD
+ SG_ s_VCU_Accel_DiagRes : 0|8@1+ (1,0) [0|255] "counter"  OBD
+
+BO_ 1283 m_BMS_DiagRes: 2 Gateway
+ SG_ s_BMS_SoT_DiagRes : 8|8@1+ (1,0) [0|255] "counter"  OBD
+ SG_ s_BMS_SoC_DiagRes : 0|8@1+ (1,0) [0|255] "counter"  OBD
+
+BO_ 1285 m_HVAC_DiagRes: 2 HVAC
+ SG_ s_HVAC_WindVolume_DiagRes : 8|8@1+ (1,0) [0|255] "counter"  OBD
+ SG_ s_HVAC_Temperature_DiagRes : 0|8@1+ (1,0) [0|255] "counter"  OBD
+
+BO_ 1281 m_ICC_DiagRes: 2 ICC
+ SG_ s_RegBrake_DiagRes : 8|8@1+ (1,0) [0|255] "counter"  OBD
+ SG_ s_Key_DiagRes : 0|8@1+ (1,0) [0|255] "counter"  OBD
+
+BO_ 1029 m_IEB_DiagReq: 1 OBD
+ SG_ s_IEB_DiagReq : 0|1@1+ (1,0) [0|1] "boolean"  Gateway
+
+BO_ 1028 m_HVAC_DiagReq: 1 OBD
+ SG_ s_HVAC_DiagReq : 0|1@1+ (1,0) [0|1] "boolean"  HVAC
+
+BO_ 1027 m_ICC_DiagReq: 1 OBD
+ SG_ s_ICC_DiagReq : 0|1@1+ (1,0) [0|1] "boolean"  ICC
+
+BO_ 1026 m_BMS_DiagReq: 1 OBD
+ SG_ s_BMS_DiagReq : 0|1@1+ (1,0) [0|1] "boolean"  Gateway
+
+BO_ 1025 m_VCU_DiagReq: 1 OBD
+ SG_ s_VCU_DiagReq : 0|1@1+ (1,0) [0|1] "boolean"  Gateway
+
+BO_ 516 m_EPIT_FinishCharge: 1 Gateway
+ SG_ s_EPIT_FinishCharge : 0|1@1+ (1,0) [0|1] "boolean"  ICC
+
+BO_ 513 m_EPIT_WaitConnect: 2 Gateway
+ SG_ s_EPIT_Connect : 0|16@1+ (1,0) [0|65535] ""  ICC
+
+BO_ 515 m_Vehicle_DoneConnect: 1 ICC
+ SG_ s_Vehicle_Connect : 0|1@1+ (1,0) [0|1] "boolean"  Gateway
+
+BO_ 514 m_Vehicle_UserInfo: 4 ICC
+ SG_ s_CarNumber : 0|16@1+ (1,0) [0|65535] ""  Gateway
+ SG_ s_AccountNumber : 16|16@1+ (1,0) [0|65535] ""  Gateway
+
+BO_ 770 m_BMS_Display: 4 Gateway
+ SG_ s_SoT : 8|8@1- (1,0) [-128|127] "C"  ICC
+ SG_ s_SoC : 0|7@1+ (1,0) [0|100] "%"  ICC
+ SG_ s_EstimatedChargingTime : 16|16@1+ (1,0) [0|65535] "sec"  ICC
+
+BO_ 769 m_VCU_Display: 4 Gateway
+ SG_ s_CurPower : 16|16@1+ (1,0) [0|65535] "" Vector__XXX
+ SG_ s_Velocity : 0|8@1+ (1,0) [0|255] "m/s"  ICC
+ SG_ s_GearMode : 8|2@1+ (1,0) [0|3] ""  ICC
+
+BO_ 260 m_UserRegenStep: 1 ICC
+ SG_ s_UserRegenStep : 0|2@1+ (1,0) [0|2] ""  Gateway
+
+BO_ 257 m_BrakeInfo: 3 Gateway
+ SG_ s_Brake_TotalValue : 16|8@1+ (1,0) [0|255] ""  ICC
+ SG_ s_Brake_RegenValue : 8|8@1+ (1,0) [0|255] ""  ICC
+ SG_ s_Brake_PushFlag : 0|1@1+ (1,0) [0|1] "boolean"  ICC
+
+BO_ 259 m_KeyMode: 1 ICC
+ SG_ s_KeyMode : 0|2@1+ (1,0) [0|2] ""  HVAC,Gateway
+
+BO_ 258 m_KeyPushFlag: 1 ICC
+ SG_ s_KeyPushFlag : 0|1@1+ (1,0) [0|1] "boolean"  Gateway
+
+
+
+CM_ BO_ 261 "배터리 상태";
+CM_ BO_ 771 "에어컨 온도 및 바람 세기";
+CM_ BO_ 1284 "IEB 진단 응답";
+CM_ SG_ 1284 s_IEB_Brake_DiagRes "Error Counter";
+CM_ BO_ 1282 "VCU 진단 응답";
+CM_ SG_ 1282 s_VCU_Transmission_DiagRes "Error Counter";
+CM_ SG_ 1282 s_VCU_Accel_DiagRes "Error Counter";
+CM_ BO_ 1283 "BMS 진단 응답";
+CM_ SG_ 1283 s_BMS_SoT_DiagRes "Error Counter";
+CM_ SG_ 1283 s_BMS_SoC_DiagRes "Error Counter";
+CM_ BO_ 1285 "HAVC 진단 응답";
+CM_ SG_ 1285 s_HVAC_WindVolume_DiagRes "Error Counter";
+CM_ SG_ 1285 s_HVAC_Temperature_DiagRes "Error Counter";
+CM_ BO_ 1281 "ICC 진단 응답";
+CM_ SG_ 1281 s_RegBrake_DiagRes "Error Counter";
+CM_ SG_ 1281 s_Key_DiagRes "Error Counter";
+CM_ BO_ 1029 "IEB 진단 요청";
+CM_ BO_ 1028 "HVAC 진단 요청";
+CM_ BO_ 1027 "ICC 진단 요청";
+CM_ BO_ 1026 "BMS 진단 요청";
+CM_ BO_ 1025 "VCU 진단 요청";
+CM_ BO_ 516 "EPIT 충전 완료 상태";
+CM_ BO_ 513 "EPIT 연결 대기 상태";
+CM_ BO_ 515 "차량 연결 완료 상태";
+CM_ BO_ 514 "차량 사용자 정보";
+CM_ BO_ 770 "배터리 상태 및 예상 충전 시간";
+CM_ BO_ 769 "차량 속도 및 기어 상태";
+CM_ BO_ 260 "사용자 회생제동 단계
+0 1 2";
+CM_ BO_ 257 "현재 브레이크 상태에 대한 메세지";
+CM_ BO_ 259 "키 모드 상태";
+CM_ BO_ 258 "키 푸시 상태";
+BA_DEF_ BO_  "DiagState" ENUM  "No","Yes";
+BA_DEF_ BO_  "DiagResponse" ENUM  "No","Yes","vector_leerstring";
+BA_DEF_ BO_  "DiagRequest" ENUM  "No","Yes","vector_leerstring";
+BA_DEF_  "Manufacturer" STRING ;
+BA_DEF_ BU_  "NodeLayerModules" STRING ;
+BA_DEF_  "BusType" STRING ;
+BA_DEF_ SG_  "GenSigStartValue" FLOAT 0 1215752192;
+BA_DEF_ SG_  "GenSigSendType" ENUM  "Cyclic","OnWrite","OnWriteWithRepetition","OnChange","OnChangeWithRepetition","IfActive","IfActiveWithRepetition","NoSigSendType","NotUsed","NotUsed","NotUsed","NotUsed","NotUsed";
+BA_DEF_ SG_  "GenSigInactiveValue" INT 0 100000;
+BA_DEF_ BO_  "GenMsgSendType" ENUM  "Cyclic","NotUsed","NotUsed","NotUsed","NotUsed","Cyclic","NotUsed","IfActive","NoMsgSendType","NotUsed","vector_leerstring";
+BA_DEF_ BO_  "GenMsgNrOfRepetition" INT 0 999999;
+BA_DEF_ BO_  "GenMsgDelayTime" INT 0 1000;
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 50000;
+BA_DEF_ BO_  "GenMsgCycleTimeFast" INT 0 50000;
+BA_DEF_ BO_  "GenMsgILSupport" ENUM  "No","Yes";
+BA_DEF_ BO_  "GenMsgFastOnStart" INT 0 100000;
+BA_DEF_ BO_  "GenMsgStartDelayTime" INT 0 100000;
+BA_DEF_DEF_  "DiagState" "No";
+BA_DEF_DEF_  "DiagResponse" "No";
+BA_DEF_DEF_  "DiagRequest" "No";
+BA_DEF_DEF_  "Manufacturer" "Vector";
+BA_DEF_DEF_  "NodeLayerModules" "CANoeILNLVector.dll";
+BA_DEF_DEF_  "BusType" "CAN";
+BA_DEF_DEF_  "GenSigStartValue" 0;
+BA_DEF_DEF_  "GenSigSendType" "Cyclic";
+BA_DEF_DEF_  "GenSigInactiveValue" 0;
+BA_DEF_DEF_  "GenMsgSendType" "NoMsgSendType";
+BA_DEF_DEF_  "GenMsgNrOfRepetition" 0;
+BA_DEF_DEF_  "GenMsgDelayTime" 0;
+BA_DEF_DEF_  "GenMsgCycleTime" 100;
+BA_DEF_DEF_  "GenMsgCycleTimeFast" 20;
+BA_DEF_DEF_  "GenMsgILSupport" "Yes";
+BA_DEF_DEF_  "GenMsgFastOnStart" 0;
+BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
+BA_ "GenMsgSendType" BO_ 261 0;
+BA_ "GenMsgSendType" BO_ 771 0;
+BA_ "GenMsgSendType" BO_ 1284 7;
+BA_ "GenMsgSendType" BO_ 1282 7;
+BA_ "GenMsgSendType" BO_ 1283 7;
+BA_ "GenMsgSendType" BO_ 1285 7;
+BA_ "GenMsgSendType" BO_ 1281 7;
+BA_ "GenMsgSendType" BO_ 1029 7;
+BA_ "GenMsgSendType" BO_ 1028 7;
+BA_ "GenMsgSendType" BO_ 1027 7;
+BA_ "GenMsgSendType" BO_ 1026 7;
+BA_ "GenMsgSendType" BO_ 1025 7;
+BA_ "GenMsgSendType" BO_ 516 7;
+BA_ "GenMsgSendType" BO_ 513 7;
+BA_ "GenMsgSendType" BO_ 515 7;
+BA_ "GenMsgSendType" BO_ 514 7;
+BA_ "GenMsgSendType" BO_ 770 0;
+BA_ "GenMsgSendType" BO_ 769 0;
+BA_ "GenMsgSendType" BO_ 260 0;
+BA_ "GenMsgCycleTime" BO_ 257 10;
+BA_ "GenMsgSendType" BO_ 257 0;
+BA_ "GenMsgCycleTime" BO_ 259 50;
+BA_ "GenMsgSendType" BO_ 259 0;
+BA_ "GenMsgCycleTime" BO_ 258 50;
+BA_ "GenMsgSendType" BO_ 258 0;
+
