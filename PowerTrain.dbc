@@ -38,13 +38,13 @@ VAL_TABLE_ vtbSensorReqCause 15 "SNA" 2 "by Request 2" 1 "by Request 1" 0 "norma
 VAL_TABLE_ vtbErrorDescription 255 "ERROR" ;
 
 
-BO_ 771 m_BMS_DiagRes: 1 BMS
- SG_ s_BMS_SoT_DiagRes : 1|1@1+ (1,0) [0|0] ""  Gateway
- SG_ s_BMS_SoC_DiagRes : 0|1@1+ (1,0) [0|0] ""  Gateway
+BO_ 771 m_BMS_DiagRes: 2 BMS
+ SG_ s_BMS_SoT_DiagRes : 8|8@1+ (1,0) [0|255] ""  Gateway
+ SG_ s_BMS_SoC_DiagRes : 0|8@1+ (1,0) [0|255] ""  Gateway
 
-BO_ 770 m_VCU_DiagRes: 1 VCU
- SG_ s_VCU_Accel_DiagRes : 1|1@1+ (1,0) [0|0] ""  Gateway
- SG_ s_VCU_Transmisson_DiagRes : 0|1@1+ (1,0) [0|0] ""  Gateway
+BO_ 770 m_VCU_DiagRes: 2 VCU
+ SG_ s_VCU_Accel_DiagRes : 0|8@1+ (1,0) [0|255] ""  Gateway
+ SG_ s_VCU_Transmisson_DiagRes : 8|8@1+ (1,0) [0|255] ""  Gateway
 
 BO_ 769 m_BMS_DiagReq: 1 Gateway
  SG_ s_BMS_DiagReq : 0|1@1+ (1,0) [0|1] ""  BMS
@@ -52,7 +52,7 @@ BO_ 769 m_BMS_DiagReq: 1 Gateway
 BO_ 768 m_VCU_DiagReq: 1 Gateway
  SG_ s_VCU_DiagReq : 0|1@1+ (1,0) [0|1] ""  VCU
 
-BO_ 514 m_EPIT_BatteryInfo: 2 Gateway
+BO_ 514 m_EPIT_BatteryInfo: 4 Gateway
  SG_ s_ChargeValue : 0|16@1+ (1,0) [0|65535] ""  BMS
 
 BO_ 513 m_Vehicle_BatteryInfo: 1 BMS
@@ -61,7 +61,8 @@ BO_ 513 m_Vehicle_BatteryInfo: 1 BMS
 BO_ 512 m_Vehicle_DoneConnect: 1 Gateway
  SG_ s_Vehicle_Connet : 0|1@1+ (1,0) [0|1] ""  BMS
 
-BO_ 1026 m_BMS_Display: 2 BMS
+BO_ 1026 m_BMS_Display: 4 BMS
+ SG_ s_EstimatedChargingTime : 16|16@1+ (1,0) [0|65535] "" Vector__XXX
  SG_ s_SoT : 8|8@1- (1,0) [-128|127] ""  Gateway
  SG_ s_SoC : 0|7@1+ (1,0) [0|127] ""  Gateway
 
@@ -71,7 +72,7 @@ BO_ 1025 m_VCU_Display: 2 VCU
 
 BO_ 1024 m_BatteryInfo: 2 BMS
  SG_ s_SoT : 8|8@1- (1,0) [-128|127] ""  Gateway,VCU
- SG_ s_SoC : 0|7@1+ (1,0) [0|127] ""  Gateway,VCU
+ SG_ s_SoC : 0|7@1+ (1,0) [0|100] ""  Gateway,VCU
 
 BO_ 258 m_CurTorque: 1 MCU
  SG_ s_CurTorque : 0|8@1+ (1,0) [0|255] ""  VCU
@@ -85,7 +86,7 @@ BO_ 256 m_BrakeInfo: 3 Gateway
  SG_ s_Brake_PushFlag : 0|1@1+ (1,0) [0|1] ""  VCU
 
 BO_ 257 m_KeyMode: 1 Gateway
- SG_ s_KeyMode : 0|2@1+ (1,0) [0|3] ""  VCU
+ SG_ s_KeyMode : 0|2@1+ (1,0) [0|2] ""  VCU
 
 
 
@@ -145,4 +146,5 @@ BA_ "GenMsgCycleTime" BO_ 259 10;
 BA_ "GenMsgSendType" BO_ 256 0;
 BA_ "GenMsgCycleTime" BO_ 256 10;
 BA_ "GenMsgSendType" BO_ 257 7;
+BA_ "GenSigStartValue" SG_ 514 s_ChargeValue 0;
 

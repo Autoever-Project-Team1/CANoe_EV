@@ -47,9 +47,9 @@ BO_ 512 m_IEB_DiagReq: 1 Gateway
 BO_ 257 m_UserRegenStep: 1 Gateway
  SG_ s_UserRegenStep : 0|2@1+ (1,0) [0|3] ""  IEB
 
-BO_ 256 m_BrakeInfo: 3 IEB
+BO_ 259 m_BrakeInfo: 3 IEB
  SG_ s_Brake_TotalValue : 16|8@1+ (1,0) [0|255] ""  Gateway
- SG_ s_Brake_RegenValue : 8|8@1+ (1,0) [0|255] ""  Gateway
+ SG_ s_Brake_RegenValue : 8|8@1+ (1,0) [0|0] ""  Gateway
  SG_ s_Brake_PushFlag : 0|1@1+ (1,0) [0|1] ""  Gateway
 
 
@@ -91,6 +91,6 @@ BA_DEF_DEF_  "GenMsgStartDelayTime" 0;
 BA_ "GenMsgSendType" BO_ 513 7;
 BA_ "GenMsgSendType" BO_ 512 7;
 BA_ "GenMsgSendType" BO_ 257 7;
-BA_ "GenMsgCycleTime" BO_ 256 10;
-BA_ "GenMsgSendType" BO_ 256 0;
+BA_ "GenMsgCycleTime" BO_ 259 10;
+BA_ "GenMsgSendType" BO_ 259 0;
 

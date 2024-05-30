@@ -52,7 +52,7 @@ BO_ 1 m_Vehicle_UserInfo: 4 EPIT_Gateway
  SG_ s_CarNumber : 0|16@1+ (1,0) [0|65535] ""  EPIT
 
 BO_ 0 m_EPIT_WaitConnect: 1 EPIT
- SG_ s_EPIT_Connect : 0|1@1+ (1,0) [0|1] ""  EPIT_Gateway
+ SG_ s_EPIT_Connect : 0|16@1+ (1,0) [0|1] ""  EPIT_Gateway
 
 
 
