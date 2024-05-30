@@ -1,0 +1,57 @@
+﻿/*@!Encoding:65001*/
+includes
+{
+  
+}
+
+variables
+{
+  msTimer gateway_timer;
+  int braketoggle = 0;
+  int errorCnt = 0;
+  
+  /*
+  message BCAN::m_ICC_DiagReq send_ICC_DiagReq;
+  message CCAN::m_BrakeInfo send_BrakeInfo;
+  message EPIT::m_EPIT_WaitConnect send_EPIT_WaitConnect;
+  message EPIT::m_EPIT_FinishCharge send_EPIT_FinishCharge;
+  message PCAN::m_BMS_Display send_BMS_Display;
+  message PCAN::m_VCU_Display send_VCU_Display;
+  */
+}
+
+on start
+{
+  setTimerCyclic(gateway_timer, 2000);
+}
+
+on timer gateway_timer
+{
+  
+  
+  if(braketoggle == 1) braketoggle = 0;
+  else braketoggle = 1;
+  errorCnt++;
+  if(braketoggle == 1){
+    //@sysvar::DashBoard::sv_UserRegenStep = 100;
+    //@sysvar::UserControl::sv_KeyValue = 100;
+  }
+  else{
+    //@sysvar::DashBoard::sv_UserRegenStep = 2;
+    //@sysvar::UserControl::sv_KeyValue = 2;
+  }
+  
+  /*
+  send_EPIT_WaitConnect.s_EPIT_Connect.phys = 41020;
+  output(send_EPIT_WaitConnect);
+  
+  send_EPIT_FinishCharge.s_EPIT_FinishCharge.phys = 1;
+  output(send_EPIT_FinishCharge);
+*/
+}
+
+on message EPIT::m_Vehicle_UserInfo
+{
+  //write("Gateway : Received AccountNumber : %d", this.s_AccountNumber);
+  //write("Gateway : Received CarNumber : %d", this.s_CarNumber);
+}
