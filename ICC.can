@@ -1,0 +1,159 @@
+﻿/*@!Encoding:65001*/
+includes
+{
+  
+}
+
+variables
+{
+  msTimer icc_timer_50ms;
+  msTimer icc_timer_100ms;
+  
+  message BCAN::m_UserRegenStep send_UserRegenStep;
+  message BCAN::m_KeyPushFlag send_KeyPushFlag;
+  message BCAN::m_KeyMode send_KeyMode;
+  message BCAN::m_Vehicle_UserInfo send_Vehicle_UserInfo;
+  message BCAN::m_Vehicle_DoneConnect send_Vehicle_DoneConnect;
+  message BCAN::m_ICC_DiagRes send_ICC_DiagRes;
+  
+  int errorCnt_KeyValue = 0;
+  int errorCnt_UserRegenStep = 0;
+  int local_KeyMode = 0;
+  int local_BrakePushFlag = 0;
+  float local_Power = 0;
+  float local_RunDistance= 0.0;
+  int before_UserRegenStep = 1;
+}
+
+on start
+{
+  setTimerCyclic(icc_timer_50ms, 50);
+  setTimerCyclic(icc_timer_100ms, 100);
+}
+
+on timer icc_timer_50ms
+{
+  // m_KeyPushFlag send
+  send_KeyPushFlag.s_KeyPushFlag.phys = @sysvar::UserControl::sv_KeyValue;
+  output(send_KeyPushFlag); 
+  
+  // m_KeyMode send
+  send_KeyMode.s_KeyMode.phys = @sysvar::Cluster::sv_Cluster_KeyValue;
+  output(send_KeyMode); 
+}
+
+on timer icc_timer_100ms
+{
+  // m_UserRegenStep send
+  message BCAN::m_UserRegenStep send_UserRegenStep;
+  send_UserRegenStep.s_UserRegenStep.phys = @sysvar::DashBoard::sv_UserRegenStep;
+  output(send_UserRegenStep);
+}
+
+on sysvar UserControl::sv_KeyValue
+{
+  if(@sysvar::UserControl::sv_KeyValue == 1){
+    if(local_BrakePushFlag == 1 && @sysvar::Cluster::sv_Cluster_KeyValue == 0){
+      @sysvar::Cluster::sv_Cluster_KeyValue = 2;
+    }
+    else if(local_BrakePushFlag == 1 && @sysvar::Cluster::sv_Cluster_KeyValue == 2){
+      @sysvar::Cluster::sv_Cluster_KeyValue = 0;
+    }
+    else if(@sysvar::Cluster::sv_Cluster_KeyValue < 2){
+      @sysvar::Cluster::sv_Cluster_KeyValue++;
+    }
+  }
+  //write("local brake: %d", local_BrakePushFlag);
+  //write("keypushflag: %d", @sysvar::UserControl::sv_KeyValue);
+  //write("keymodeclus: %d", @sysvar::Cluster::sv_Cluster_KeyValue);
+}
+
+on message BCAN::m_BrakeInfo
+{
+  local_BrakePushFlag = this.s_Brake_PushFlag;
+  //write("right after brakepush signal: %d", local_BrakePushFlag);
+  //write("right after brakepush k: %d", this.s_Brake_PushFlag);
+}
+
+on sysvar DashBoard::sv_UserRegenStep
+{ 
+  if (@sysvar::Cluster::sv_Cluster_KeyValue < 1) {
+    @sysvar::DashBoard::sv_UserRegenStep = before_UserRegenStep;
+  }
+  before_UserRegenStep = @sysvar::DashBoard::sv_UserRegenStep;
+  
+  if(@this > 2){
+    errorCnt_UserRegenStep++;
+  }
+    
+  //write("UserRegenStep : %d", @sysvar::DashBoard::sv_UserRegenStep);
+  //write("ErrorRegenStep : %d", errorCnt_UserRegenStep);
+}
+
+on sysvar sysvar::Cluster::sv_Cluster_KeyValue
+{
+  if(@this > 2){
+    errorCnt_KeyValue++;
+    @sysvar::OBD_PanelControl::sv_Error_ICC = 1;
+  }
+  //write("Keyval : %d", @sysvar::Cluster::sv_Cluster_KeyValue);
+  //write("ErrorKeyval : %d", errorCnt_KeyValue);
+}
+
+on message BCAN::m_EPIT_WaitConnect
+{
+  if(this.s_EPIT_Connect == @sysvar::CarInfo::sv_CheckNumber){
+    @sysvar::Cluster::sv_Cluster_ChargingMode = 1;
+    
+    // m_Vehicle_UserInfo send
+    send_Vehicle_UserInfo.s_CarNumber.phys = @sysvar::CarInfo::sv_CarNumber;
+    send_Vehicle_UserInfo.s_AccountNumber.phys = @sysvar::CarInfo::sv_AccountNumber;
+    output(send_Vehicle_UserInfo);
+    
+    // m_Vehicle_DoneConnect send
+    send_Vehicle_DoneConnect.s_Vehicle_Connect = 1;
+    output(send_Vehicle_DoneConnect);
+  }
+}
+
+on message BCAN::m_EPIT_FinishCharge
+{
+  if(this.s_EPIT_FinishCharge == 1){
+    @sysvar::Cluster::sv_Cluster_ChargingMode = 0;
+  }
+}
+
+on message BCAN::m_VCU_Display
+{
+  @sysvar::Cluster::sv_Cluster_Speed = this.s_Velocity;
+  @sysvar::Cluster::sv_Cluster_GearMode = this.s_GearMode;
+  //write("Speed : %d", @sysvar::Cluster::sv_Cluster_Speed);
+  //write("Gear : %d", @sysvar::UserControl::sv_GearMode);
+  local_Power = (float)this.s_CurPower; //should change velocity to power 
+  local_Power = ((local_Power * 255) / 43000); 
+  @sysvar::Cluster::sv_Cluster_Power = (int)local_Power;
+  local_RunDistance = (float)this.s_Velocity;
+  local_RunDistance = local_RunDistance * 1000 * 0.1 / 3600;  
+  @sysvar::Cluster::sv_Cluster_TotalDist += (int)local_RunDistance;
+}
+
+on message BCAN::m_BMS_Display
+{
+  @sysvar::Battery::sv_Battery_Temperature = this.s_SoT;
+  @sysvar::Cluster::sv_Cluster_SoC = this.s_SoC;
+  @sysvar::Cluster::sv_Cluster_EstimatedChargingTime = this.s_EstimatedChargingTime;
+  //write("SoT : %d", @sysvar::Battery::sv_Battery_Temperature);
+  //write("SoC : %d", @sysvar::Cluster::sv_Cluster_SoC);
+  //write("ECT : %d", @sysvar::Cluster::sv_Cluster_EstimatedChargingTime);
+}
+
+on message BCAN::m_ICC_DiagReq
+{
+  if(this.s_ICC_DiagReq == 1){
+    send_ICC_DiagRes.s_Key_DiagRes.phys = errorCnt_KeyValue;
+    send_ICC_DiagRes.s_RegBrake_DiagRes.phys = errorCnt_UserRegenStep;
+    output(send_ICC_DiagRes);
+    errorCnt_KeyValue = 0;
+    errorCnt_UserRegenStep = 0;
+  }  
+}
