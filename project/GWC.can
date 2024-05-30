@@ -6,154 +6,176 @@ includes
 
 variables
 {
-  
+  message *gwmsg2;
+  int s_KeyMode_value;
+
 }
 
 //////////////////// P-CAN -> B-CAN ////////////////////
-on message P_CAN::m_BatteryInfo
+
+on message PCAN::BMS::m_BatteryInfo
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id=BCAN::Gateway::m_BatteryInfo.id;
   output(gwmsg);
 }
 
-on message P_CAN::VCU::m_VCU_Display
+on message PCAN::VCU::m_VCU_Display
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id=BCAN::Gateway::m_VCU_Display.id;
   output(gwmsg);
 }
 
-on message can1.P_CAN::BMS::m_BMS_Display
+on message can1.PCAN::BMS::m_BMS_Display
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id=BCAN::Gateway::m_BMS_Display.id;
   output(gwmsg);
 }
 
-on message P_CAN::VCU::m_VCU_DiagRes
+on message PCAN::VCU::m_VCU_DiagRes
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id=BCAN::Gateway::m_VCU_DiagRes.id;
   output(gwmsg);
 }
 
-on message P_CAN::BMS::m_BMS_DiagRes
+on message PCAN::BMS::m_BMS_DiagRes
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id=BCAN::Gateway::m_BMS_DiagRes.id;
   output(gwmsg);
 }
 
 
 //////////////////// B-CAN -> P-CAN  ////////////////////
-on message B_CAN::m_KeyMode
+on message BCAN::ICC::m_KeyMode
 {
   message * gwmsg;
   gwmsg = this;
+  s_KeyMode_value=this.s_KeyMode;
+  
   gwmsg.can = 1;
+  gwmsg.id=PCAN::Gateway::m_KeyMode.id;
   output(gwmsg);  
 }
 
-on message B_CAN::m_Vehicle_DoneConnect
+on message BCAN::ICC::m_Vehicle_DoneConnect
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 1;
+  gwmsg.id=PCAN::Gateway::m_Vehicle_DoneConnect.id;
   output(gwmsg);
 }
 
-on message B_CAN::m_VCU_DiagReq
+on message BCAN::OBD::m_VCU_DiagReq
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 1;
+  gwmsg.id=PCAN::Gateway::m_VCU_DiagReq.id;
   output(gwmsg);
 }
 
-on message B_CAN::m_BMS_DiagReq
+on message BCAN::OBD::m_BMS_DiagReq
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 1;
+  gwmsg.id=PCAN::Gateway::m_BMS_DiagReq.id;
   output(gwmsg);
 }
 
 //////////////////// B-CAN -> C-CAN  ////////////////////
-on message B_CAN::m_IEB_DiagReq
+on message BCAN::OBD::m_IEB_DiagReq
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 3;
+  gwmsg.id=CCAN::Gateway::m_IEB_DiagReq.id;
   output(gwmsg);
 }
 
-on message B_CAN::m_UserRegenStep
+on message BCAN::ICC::m_UserRegenStep
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 3;
+  gwmsg.id=CCAN::Gateway::m_UserRegenStep.id;
   output(gwmsg);
 }
 
 
 //////////////////// C-CAN -> P-CAN, B-CAN  ////////////////////
-on message C_CAN::m_BrakeInfo
+on message CCAN::IEB::m_BrakeInfo
 {
-  message * gwmsg;
-  gwmsg = this;
-  gwmsg.can = 1;
-  gwmsg.can = 2;
-  output(gwmsg);
+  // 첫 번째 메시지 처리
+  message *gwmsg1;
+  gwmsg1 = this; // 메시지 복사
+  gwmsg1.can = 1;
+  gwmsg1.id = PCAN::Gateway::m_BrakeInfo.id;
+  output(gwmsg1);
+
+  // 두 번째 메시지 처리
+  gwmsg2 = this; // 메시지 복사
+  gwmsg2.can = 2;
+  gwmsg2.id = BCAN::Gateway::m_BrakeInfo.id;
+  output(gwmsg2);
 }
+
 
 //////////////////// C-CAN -> B-CAN  ////////////////////
-on message C_CAN::m_IEB_DiagRes
+on message CCAN::IEB::m_IEB_DiagRes
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id = BCAN::Gateway::m_IEB_DiagRes.id;
   output(gwmsg);
 }
 
 
-////////////////////// vehicle -> Charger  ////////////////////
-on message B_CAN::m_Vehicle_UserInfo
+
+//////////////////////// vehicle -> Charger  ////////////////////
+on message BCAN::ICC::m_Vehicle_UserInfo
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 4;
+  gwmsg.id = EPIT::m_Vehicle_UserInfo.id;
+  //gwmsg.id = Note::m_Vehicle_UserInfo.id;
   output(gwmsg);
 }
 
-on message P_CAN::BMS::m_Vehicle_BatteryInfo
+on message PCAN::BMS::m_Vehicle_BatteryInfo
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 4;
+  gwmsg.id = EPIT::m_Vehicle_BatteryInfo.id;
+  //gwmsg.id = Note::m_Vehicle_BatteryInfo.id;
   output(gwmsg);
 }
 
-////////////////////// Charger -> B-CAN  ////////////////////
+////////////////////////// Charger -> B-CAN  ////////////////////
 on message EPIT::m_EPIT_WaitConnect
 {
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
-  output(gwmsg);
-}
-
-////////////////////// Charger -> P-CAN  ////////////////////
-on message EPIT::m_EPIT_BatteryInfo
-{
-  message * gwmsg;
-  gwmsg = this;
-  gwmsg.can = 1;
+  gwmsg.id = BCAN::m_EPIT_WaitConnect.id;
   output(gwmsg);
 }
 
@@ -163,5 +185,16 @@ on message EPIT::m_EPIT_FinishCharge
   message * gwmsg;
   gwmsg = this;
   gwmsg.can = 2;
+  gwmsg.id = BCAN::m_EPIT_FinishCharge.id;
+  output(gwmsg);
+}
+
+////////////////////// Charger -> P-CAN  ////////////////////
+on message EPIT::m_EPIT_BatteryInfo
+{
+  message * gwmsg;
+  gwmsg = this;
+  gwmsg.can = 1;
+  gwmsg.id = PCAN::m_EPIT_BatteryInfo.id;
   output(gwmsg);
 }
